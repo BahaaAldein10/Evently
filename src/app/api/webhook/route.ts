@@ -1,4 +1,4 @@
-import { createUser } from "@/lib/actions/user.actions";
+import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
 import { clerkClient } from "@clerk/nextjs";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
@@ -77,9 +77,33 @@ export async function POST(req: Request) {
         },
       });
 
-      return NextResponse.json({ message: "ok" }, { status: 200 });
+      return NextResponse.json({ message: "ok", user: newUser });
     }
-
-    return new Response("", { status: 200 });
   }
+
+  if (evt.type === "user.updated") {
+    const { id, username, first_name, last_name, image_url } = evt.data;
+
+    const user = {
+      clerkId: id,
+      username: username!,
+      firstName: first_name,
+      lastName: last_name,
+      photoUrl: image_url,
+    };
+
+    const updatedUser = await updateUser(id, user);
+
+    return NextResponse.json({ message: "ok", user: updatedUser });
+  }
+
+  if (eventType === "user.deleted") {
+    const { id } = evt.data;
+
+    const deletedUser = await deleteUser(id!);
+
+    return NextResponse.json({ message: "OK", user: deletedUser });
+  }
+
+  return new Response("", { status: 200 });
 }
