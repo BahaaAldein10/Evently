@@ -2,6 +2,7 @@
 
 import { CreateEventParams } from "@/types";
 import { connectToDatabase } from "../database/connectDB";
+import Event from "../database/models/event.model";
 import User from "../database/models/user.model";
 import { handleError } from "../utils";
 
@@ -19,7 +20,7 @@ export const createEvent = async ({
       throw new Error("Orgainzer not found!");
     }
 
-    const newEvent = await User.create({
+    const newEvent = await Event.create({
       ...event,
       organizer: userId,
       category: event.categoryId,
